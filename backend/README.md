@@ -1,54 +1,33 @@
-# Flask Cocktail API
+## Requirements
+ 
+- MongoDB
+- Python 3 (defaults to Python 3.7, but you can change this in the Pipfile before setup)
 
-A simple API for getting cocktail recipes.
+## Setup instructions
 
-This code was written as part of a [blog post](https://developer.mongodb.com/),
-it's not really designed to stand alone.
+1. Clone this repo to your local web server
+2. `cd` into the directory within the terminal
+3. Run `./setup` to setup pipenv and configure the Flask app
 
-## Run the code
+Here's a quick video of the setup process (no audio): [flask-mongo-api-boilerplate-setup.mp4](https://img.lukepeters.me/flask-mongo-api-boilerplate-setup.mp4)
 
-First create and activate your virtualenv - with the `venv` package on OSX or Linux, this will be:
+## Running the app
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+1. Run `pipenv shell` to activate the virtual environment
+2. Run `./run` to start the Flask application
 
-With your virtualenv active, install the project locally:
+## Further configuration
 
-```bash
-pip install -e .
-```
+You can configure the app manually by editing the `api/main/config/config.cfg` file.
 
-You'll need to set the environment variable `MONGO_URI` to the URL of your MongoDB replicaset.
-I use `direnv` to configure this, and put the following line in my `.envrc` file in my project's directory:
+## Auth tokens
 
-```bash
-export MONGO_URI="mongodb+srv://USERNAME:PASSW0RD@cluster0-abcde.azure.mongodb.net/cocktails?retryWrites=true&w=majority"
-```
+There is a very basic front-end example in place within the `/web` directory. It demonstrates making a few API calls (User Add and User Login).
 
-You can then import the sample data with mongoimport:
+A successful login request will return two tokens: `AccessToken` and `RefreshToken`. These should be saved to localStorage and used to set the `AccessToken` and `RefreshToken` request headers for all protected routes (e.g. `GET /user/`).
 
-```bash
-mongoimport --uri "$MONGO_URI" --file ../data/recipes.json
-```
+You can refresh the `AccessToken` when it returns as expired by submitting a request to `GET /user/auth/`.
 
-And now you should be able to run the service like this:
+## Notes
 
-```bash
-FLASK_APP=cocktailapi flask run
-```
-
-## Developing
-
-Run the following to install the project (and dev dependencies) into your active virtualenv:
-
-```bash
-pip install -e .[dev]
-```
-
-You can run the tests with:
-
-```bash
-pytest
-```
+Please excuse the brief instructions. I've only run this in my own environment (MacOS, Python 3.7, MongoDB 4.0.4, pipenv 2018.11.14) so it may not run out of the box on your computer, but I'd be happy to help debug if you get stuck. Reach out to me on Twitter: [@MoonlightLuke](https://twitter.com/MoonlightLuke)
