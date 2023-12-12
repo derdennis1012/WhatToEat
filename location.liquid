@@ -1,1 +1,290 @@
+<style>
+  #store-info {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
   }
+
+  .store-info-item {
+    border: 2px solid #d9d9d9;
+    padding: 10px;
+  }
+
+  .store-info-item + .store-info-item {
+    border-top: none;
+  }
+
+  .store-info-item:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+
+  .store-info-item:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .status-available .fis-status,
+  .status-available .fis-message {
+    color: green;
+  }
+
+  .status-available-via-transfer .fis-status,
+  .status-available-via-transfer .fis-message {
+    color: blue;
+  }
+
+  .status-out-of-stock .fis-status,
+  .status-out-of-stock .fis-message {
+    color: red;
+  }
+
+  .fis-location,
+  .fis-dash,
+  .fis-status {
+    margin: 2px 0;
+    display: inline;
+  }
+
+  .fis-location {
+    font-weight: 700;
+  }
+
+  .fis-address,
+  .fis-phone,
+  .fis-quantity {
+    font-size: small;
+  }
+</style>
+
+<ul id="store-info"></ul>
+
+<script>
+  const storeData = {
+    Warehouse: {
+      shopifyID: 33814741072,
+      quantity: 0,
+      phone: "(03) 9314 9199",
+      message: {
+        available: "Dispatches from Melbourne within 1 business day.",
+        outOfStock: "We apologize for the inconvenience",
+      },
+    },
+    Richmond: {
+      shopifyID: 50336956488,
+      quantity: 2,
+      address: "483-485 Bridge Rd, Richmond VIC 3121",
+      phone: "(03) 7036 1910",
+      message: {
+        available: "Ready to collect built within 1-2 business days.",
+        transfer: "Ready to collect built within 3-4 business days.",
+        outOfStock: "We apologize for the inconvenience",
+      },
+    },
+    Woolloongabba: {
+      shopifyID: 50337087560,
+      quantity: 0,
+      address: "212 Logan Rd, Woolloongabba QLD 4102",
+      phone: "(07) 3171 2170",
+      message: {
+        available: "Ready to collect built within 1-2 business days.",
+        transfer: "Ready to collect built within 6-8 business days.",
+        outOfStock: "We apologize for the inconvenience",
+      },
+    },
+    Balcatta: {
+      shopifyID: 50337054792,
+      quantity: 20,
+      address: "4/7 Erindale Rd, Balcatta WA 6021",
+      phone: "(08) 6118 9290",
+      message: {
+        available: "Ready to collect built within 1-2 business days.",
+        transfer: "Ready to collect built within 8-10 business days.",
+        outOfStock: "We apologize for the inconvenience",
+      },
+    },
+  };
+
+  function checkStock(storeData) {
+    let storeStockStatus = {};
+
+    for (let storeName in storeData) {
+      let store = storeData[storeName];
+
+      let quantity =
+        store.quantity !== undefined && store.quantity !== null
+          ? store.quantity
+          : 0;
+
+      let status, message;
+
+      if (quantity > 0) {
+        status = "Available";
+        message = store.message.available;
+      } else if (
+        storeName !== "Warehouse" &&
+        storeData.Warehouse.quantity > 0
+      ) {
+        status = "Available via transfer";
+        message = store.message.transfer;
+      } else {
+        status = "Out of stock";
+        message = store.message.outOfStock;
+      }
+
+      storeStockStatus[storeName] = {
+        Status: status,
+        Message: message,
+        Address: store.address,
+        Phone: store.phone,
+        Quantity: quantity,
+      };
+    }
+
+    return storeStockStatus;
+  }
+
+  function displayStockStatus(stockStatus) {
+    let container = document.getElementById("store-info");
+
+    // Clear previous content
+    container.innerHTML = "";
+
+    for (let location in stockStatus) {
+      let info = stockStatus[location];
+
+      let displayName = location === "Warehouse" ? "Home Delivery" : location;
+
+      let li = document.createElement("li");
+
+      let storeClass = "store-" + location.replace(/\s+/g, "-").toLowerCase();
+      let statusClass =
+        "status-" + info["Status"].replace(/\s+/g, "-").toLowerCase();
+
+      li.className = `store-info-item ${storeClass} ${statusClass}`;
+
+      let locationDiv = document.createElement("div");
+      locationDiv.className = "fis-location";
+      locationDiv.textContent = `${displayName}`;
+      li.appendChild(locationDiv);
+
+      let dashDiv = document.createElement("div");
+      dashDiv.className = "fis-dash";
+      dashDiv.textContent = ` - `;
+      li.appendChild(dashDiv);
+
+      let statusDiv = document.createElement("div");
+      statusDiv.className = "fis-status";
+      let statusText = info["Status"];
+      if (
+        info["Status"].toLowerCase() === "available" ||
+        info["Status"].toLowerCase() === "available via transfer"
+      ) {
+        statusText += ` <i class="fa-regular fa-circle-check"></i>`;
+      } else if (info["Status"].toLowerCase() === "out of stock") {
+        statusText += ` <i class="fa-regular fa-circle-xmark"></i>`;
+      }
+      statusDiv.innerHTML = statusText;
+      li.appendChild(statusDiv);
+
+      let messageDiv = document.createElement("div");
+      messageDiv.className = "fis-message";
+      messageDiv.textContent = `${info["Message"]}`;
+      li.appendChild(messageDiv);
+
+      if (location !== "Warehouse") {
+        let addressDiv = document.createElement("div");
+        addressDiv.className = "fis-address";
+        addressDiv.innerHTML = `<i class="fa-regular fa-location-dot"></i> ${info.Address}`;
+        li.appendChild(addressDiv);
+      }
+
+      let phoneDiv = document.createElement("div");
+      phoneDiv.className = "fis-phone";
+      phoneDiv.innerHTML = `<i class="fa-regular fa-phone"></i> ${info.Phone}`;
+      li.appendChild(phoneDiv);
+
+      let quantityDiv = document.createElement("div");
+      quantityDiv.className = "fis-quantity";
+      quantityDiv.textContent = `Quantity: ${stockStatus[location].Quantity}`;
+      li.appendChild(quantityDiv);
+
+      container.appendChild(li);
+    }
+  }
+
+  function onVariantChange() {
+    // Get the selected variant data from the Shopify metafield
+    const variantData = JSON.parse('{{ product.selected_or_first_available_variant.metafields.locationInventory.info }}');
+    // Update stock information based on the selected variant
+    updateStockInfo(variantData);
+  }
+
+
+  function updateStockInfo(variantData) {
+    // Update the quantity in storeData based on variantData
+    for (let location in storeData) {
+      const locationData = variantData.find(
+        (data) => data.location.id === storeData[location].shopifyID
+      );
+      if (locationData) {
+        storeData[location].quantity = locationData.quantity;
+      }else{
+        storeData[location].quantity = 0;
+      }
+    }
+
+    // Check stock and display the updated information
+    let stockStatus = checkStock(storeData);
+    displayStockStatus(stockStatus);
+  }
+
+  //get all product variants available and save them in a global variable
+function getVariants(){
+    var variants = [];
+    {% for variant in product.variants %}
+        variants.push({{ variant | json }});
+        //get the metafields for each variant
+        var metafields = {{ variant.metafields.locationInventory.info }};
+        //add the metafields to the variant object
+        variants[variants.length - 1].locationInventory = metafields;
+
+    {% endfor %}
+
+    //make it key value pair (id is the key)
+    variants = variants.reduce((acc, item) => {
+        acc[item.id] = item;
+        return acc;
+    }, {});
+    return variants;
+}
+const variants = getVariants();
+
+    onVariantChange();
+
+    document.addEventListener('variantChange', onVariantChange);
+    document.addEventListener('variant:change', onVariantChange);
+
+    let previousUrl = '';
+const observer = new MutationObserver(function(mutations) {
+  if (window.location.href !== previousUrl) {
+      previousUrl = window.location.href;
+      setTimeout(()=>{
+        const urlParams = new URLSearchParams(window.location.search);
+        const variantId = urlParams.get('variant');
+        if(variantId){
+            const variantData = variants[variantId];
+            const metafieldData = variantData.locationInventory;
+            updateStockInfo(metafieldData);
+        }
+        else{
+            onVariantChange();
+        }
+      }, 200);
+    }
+});
+const config = {subtree: true, childList: true};
+
+observer.observe(document, config);
+
+</script>
