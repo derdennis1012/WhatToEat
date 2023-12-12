@@ -1,0 +1,22 @@
+Metadata-Version: 2.1
+Name: flask-cocktail-api
+Version: 0.0.0
+Summary: A small API for getting cocktail recipes.
+Author: Mark Smith
+Author-email: mark.smith@mongodb.com
+Requires-Dist: fastapi==0.63.0
+Requires-Dist: Flask==1.1.4
+Requires-Dist: Flask-PyMongo==2.3.0
+Requires-Dist: pymongo[srv]==3.11.3
+Requires-Dist: pydantic==1.8.1
+Requires-Dist: MarkupSafe==2.0.1
+Provides-Extra: tests
+Requires-Dist: pytest; extra == "tests"
+Requires-Dist: coverage[toml]>=5.0.2; extra == "tests"
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: coverage[toml]>=5.0.2; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: twine; extra == "dev"
+Requires-Dist: wheel; extra == "dev"
+Requires-Dist: prospector[with_everything]; extra == "dev"

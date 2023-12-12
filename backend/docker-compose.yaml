@@ -12,3 +12,4 @@ services:
 
 volumes:
   mongodb_data_container:
+mongodb://root:WaRa_bestSchool%40wrld!@localhost:27017/?authSource=admin  
