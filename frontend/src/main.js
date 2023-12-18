@@ -5,7 +5,17 @@ import './style.css'
 import App from './App.vue'
 const router = createRouter({
     history: createWebHistory(),
-    routes: []
+    routes: [
+
+      {
+        path:'/login',
+        component: () => import('./pages/Login.vue'),
+        meta: {
+          title: 'Login',
+          requiresAuth: false
+        }
+      }
+    ]
   })
   
   app.use(router)
