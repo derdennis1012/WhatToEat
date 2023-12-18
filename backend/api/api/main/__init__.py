@@ -16,6 +16,7 @@ def create_app():
   app = Flask(__name__)
   app.config.from_pyfile("config/config.cfg")
   cors = CORS(app, resources={r"/*": { "origins": app.config["FRONTEND_DOMAIN"] }})
+  app.config['CORS_HEADERS'] = 'Content-Type'
 
   # Misc Config
   os.environ["TZ"] = app.config["TIMEZONE"]
