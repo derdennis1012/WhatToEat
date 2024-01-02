@@ -2,25 +2,11 @@ from flask import current_app as app
 from flask import Flask, request
 from jose import jwt
 from main import tools
-
-class location:
-    def __init__(self):
-        self.defaults = {
-            "last_updated": tools.nowDatetimeUTC(),
-            "streetName": "",
-            "streetNumber": "",
-            "postalCode": "",
-            "city": "",
-            "country": "",
-            "lat": "",
-            "lng": "",
-            "timeZone": ""
-        }
+import json
 
 class delivery:
     def __init__(self):
         self.defaults = {
-            "last_updated": tools.nowDatetimeUTC(),
             "times": {
                 "0": [
                     {
@@ -65,13 +51,13 @@ class delivery:
                     }
                 ],
             },
-            "isOpenForOrder": True,
-            "isOpenForPreorder": True,
+            "isOpenForOrder": False,
+            "isOpenForPreorder": False,
             "durationRange": {
                 "min": 0,
                 "max": 0
             }
-        }     
+        }    
 
 class optionGroup:
     def __init__(self):
@@ -157,7 +143,6 @@ class category:
 class menu:
     def __init__(self):
         self.defaults = {
-            "last_updated": tools.nowDatetimeUTC(),
             "currency": {
                 "denominator": 0,
                 "code": ""
@@ -178,7 +163,6 @@ class restaurant:
     def __init__(self):
         self.defaults = {
             "id": tools.randID(),
-            "date_created": tools.nowDatetimeUTC(),
             "last_updated": tools.nowDatetimeUTC(),
             "restaurantId": "",
             "primarySlug": "",
@@ -187,12 +171,21 @@ class restaurant:
             "restaurantPhoneNumber": "",
             "rating":   {"votes": "",
                         "score": ""},
-            "location": location(),
+            "location": {
+                "streetName": "",
+                "streetNumber": "",
+                "postalCode": "",
+                "city": "",
+                "country": "",
+                "lat": "",
+                "lng": "",
+                "timeZone": ""
+            },
             # Wann wird geliefert
-            "delivery": delivery(),
+            "delivery": {},
             # Wann kann man abholen
-            "pickup": delivery(),
-            "menu": menu(),
+            "pickup": {},
+            "menu": {},
             "supports": {
                 "delivery": True,
                 "pickup": True,
@@ -211,22 +204,82 @@ class restaurant:
                     "offlinePayment": []
                 },
                 "issuers": {}
-            },
+            }
         }
 
     def get(self):
         token_data = jwt.decode(request.headers.get('AccessToken'), app.config['SECRET_KEY'])
 
-        company = app.db.companies.find_one({ "id": token_data['company_id'] }, {
+        restaurant = app.db.restaurant.find_one({ "id": token_data['restaurant_id'] }, {
             "_id": 0,
             "password": 0
         })
 
-        if company:
-            resp = tools.JsonResp(company, 200)
+        if restaurant:
+            resp = tools.JsonResp(restaurant, 200)
         else:
-            resp = tools.JsonResp({ "message": "Company not found" }, 404)
+            resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)
 
         return resp  
             
-                
+    def add(self):
+        data = json.loads(request.data)
+
+        expected_data = {
+            "restaurantId": data["restaurantId"],
+            "primarySlug": data["primarySlug"],
+            "name": data["brand"]["name"],
+            "branchName": data["brand"]["branchName"],
+            "restaurantPhoneNumber": data["restaurantPhoneNumber"],
+            "rating":   {"votes": data["rating"]["votes"],
+                        "score": data["rating"]["score"]},
+            "location": {
+                "streetName": data["location"]["streetName"],
+                "streetNumber": data["location"]["streetNumber"],
+                "postalCode": data["location"]["postalCode"],
+                "city": data["location"]["city"],
+                "country": data["location"]["country"],
+                "lat": data["location"]["lat"],
+                "lng": data["location"]["lng"],
+                "timeZone": data["location"]["timeZone"]
+            },
+            "delivery": data["delivery"],
+            "pickup": data["pickup"],
+            "menu": data["menu"],
+            "supports": {
+                "delivery": data["supports"]["delivery"],
+                "pickup": data["supports"]["pickup"],
+                "stampCards": data["supports"]["stampCards"],
+                "vouchers": data["supports"]["vouchers"],
+                "productRemarks": data["supports"]["productRemarks"],
+                "onlinePayments": data["supports"]["onlinePayments"],
+                "tipping": data["supports"]["tipping"]
+            },
+            "payment": {
+                "methods": data["payment"]["methods"],
+                "paymentMethodFees": data["payment"]["paymentMethodFees"],
+                "fees": data["payment"]["fees"],
+                "messages": {
+                    "onlinePayment": data["payment"]["messages"]["onlinePayment"],
+                    "offlinePayment": data["payment"]["messages"]["offlinePayment"]
+                },
+                "issuers": data["payment"]["issuers"]
+            }
+        }
+
+        self.defaults.update(expected_data)
+
+        id_as_str = str(expected_data['restaurantId'])
+        restaurant = app.db.restaurants.find_one({ "id": app.ObjectId(id_as_str)})
+        if restaurant:
+            if app.db.restaurants.update_one({ "id": app.ObjectId(id_as_str)}, { "$set": self.defaults }):
+                resp = tools.JsonResp({ "message": "Restaurant updated" }, 200)
+            else: 
+                resp = tools.JsonResp({ "message": "Restaurant not updated" }, 400)      
+        else:
+            if app.db.companies.insert_one(restaurant):
+                resp = tools.JsonResp({ "message": "Restaurant added" }, 201)
+            else:
+                resp = tools.JsonResp({ "message": "Restaurant not added" }, 400)    
+
+        return resp
