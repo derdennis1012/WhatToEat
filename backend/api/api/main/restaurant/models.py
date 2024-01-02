@@ -174,7 +174,7 @@ class menu:
             "discounts": []
         }           
 
-class company:
+class restaurant:
     def __init__(self):
         self.defaults = {
             "id": tools.randID(),
@@ -213,3 +213,20 @@ class company:
                 "issuers": {}
             },
         }
+
+    def get(self):
+        token_data = jwt.decode(request.headers.get('AccessToken'), app.config['SECRET_KEY'])
+
+        company = app.db.companies.find_one({ "id": token_data['company_id'] }, {
+            "_id": 0,
+            "password": 0
+        })
+
+        if company:
+            resp = tools.JsonResp(company, 200)
+        else:
+            resp = tools.JsonResp({ "message": "Company not found" }, 404)
+
+        return resp  
+            
+                
