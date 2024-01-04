@@ -1,6 +1,6 @@
 from flask import current_app as app
-from flask import Flask, request
-from jose import jwt
+from flask import request
+from bson.json_util import dumps
 from main import tools
 import json
 
@@ -218,10 +218,19 @@ class Restaurant:
             resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)
 
         return resp  
-            
-    def add(self):
-        data = json.loads(request.data)
 
+    def getAll(self):
+        cursor = app.db.restaurants.find({})
+        list_cur = list(cursor)
+        restaurants = json.loads(dumps(list_cur))
+        if restaurants:
+            resp = tools.JsonResp(restaurants, 200)
+        else:
+            resp = tools.JsonResp({ "message": "No restaurants found" }, 404)
+
+        return resp    
+            
+    def insertRestaurant(self, data):
         expected_data = {
             "restaurantId": data["restaurantId"],
             "primarySlug": data["primarySlug"],
@@ -280,3 +289,39 @@ class Restaurant:
                 resp = tools.JsonResp({ "message": "Restaurant not added" }, 400)    
 
         return resp
+    
+    def add(self):
+        data = json.loads(request.data)
+        return self.insertRestaurant(data)  
+
+    def addAll(self):
+        data = json.loads(request.data)
+        if data["restaurants"] is None:
+            resp = tools.JsonResp({ "message": "No restaurant data was sent" }, 400)
+        else:
+            for restaurant in data["restaurants"]:
+                self.insertRestaurant(restaurant)
+            resp = tools.JsonResp({ "message": "Restaurants added" }, 201)    
+        return resp
+
+    def delete(self):
+        restaurantId = request.args.get('restaurantId')
+        restaurant = app.db.restaurants.find_one({ "id": restaurantId})
+        if restaurant:
+            if app.db.restaurants.delete_one({ "id": restaurantId}):
+                resp = tools.JsonResp({ "message": "Restaurant deleted" }, 200)
+            else: 
+                resp = tools.JsonResp({ "message": "Restaurant not deleted" }, 400)      
+        else:
+            resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)    
+
+        return resp        
+
+    def deleteAll(self):
+        if app.db.restaurants.delete_many({}):
+            resp = tools.JsonResp({ "message": "Restaurants deleted" }, 200)
+        else: 
+            resp = tools.JsonResp({ "message": "Restaurants not deleted" }, 400)      
+
+        return resp
+
