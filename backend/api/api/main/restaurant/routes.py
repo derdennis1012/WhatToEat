@@ -1,8 +1,13 @@
 from flask import Blueprint
 from flask import current_app as app
+from main.restaurant.models import Restaurant
 
-company_blueprint = Blueprint("restaurant", __name__)
+restaurant_blueprint = Blueprint("restaurant", __name__)
 
-@company_blueprint.route("/", methods=["GET"])
+@restaurant_blueprint.route("/", methods=["GET"])
 def get():
-    pass
+    return Restaurant().get()
+
+@restaurant_blueprint.route("/", methods=["POST"])
+def add():
+    return Restaurant().add()

@@ -159,10 +159,9 @@ class menu:
             "discounts": []
         }           
 
-class restaurant:
+class Restaurant:
     def __init__(self):
         self.defaults = {
-            "id": tools.randID(),
             "last_updated": tools.nowDatetimeUTC(),
             "restaurantId": "",
             "primarySlug": "",
@@ -208,12 +207,10 @@ class restaurant:
         }
 
     def get(self):
-        token_data = jwt.decode(request.headers.get('AccessToken'), app.config['SECRET_KEY'])
+        # extract the parameter sent with the get request
+        restaurantId = request.args.get('restaurantId')
 
-        restaurant = app.db.restaurant.find_one({ "id": token_data['restaurant_id'] }, {
-            "_id": 0,
-            "password": 0
-        })
+        restaurant = app.db.restaurants.find_one({ "restaurantId": restaurantId })
 
         if restaurant:
             resp = tools.JsonResp(restaurant, 200)
@@ -270,14 +267,14 @@ class restaurant:
         self.defaults.update(expected_data)
 
         id_as_str = str(expected_data['restaurantId'])
-        restaurant = app.db.restaurants.find_one({ "id": app.ObjectId(id_as_str)})
+        restaurant = app.db.restaurants.find_one({ "id": id_as_str})
         if restaurant:
-            if app.db.restaurants.update_one({ "id": app.ObjectId(id_as_str)}, { "$set": self.defaults }):
+            if app.db.restaurants.update_one({ "id": id_as_str}, { "$set": self.defaults }):
                 resp = tools.JsonResp({ "message": "Restaurant updated" }, 200)
             else: 
                 resp = tools.JsonResp({ "message": "Restaurant not updated" }, 400)      
         else:
-            if app.db.companies.insert_one(restaurant):
+            if app.db.restaurants.insert_one(self.defaults):
                 resp = tools.JsonResp({ "message": "Restaurant added" }, 201)
             else:
                 resp = tools.JsonResp({ "message": "Restaurant not added" }, 400)    

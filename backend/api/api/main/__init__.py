@@ -9,6 +9,7 @@ from bson.objectid import ObjectId
 
 # Import Routes
 from main.user.routes import user_blueprint
+from main.restaurant.routes import restaurant_blueprint
 
 def create_app():
 
@@ -23,6 +24,8 @@ def create_app():
 
   #mongodb uri mongodb://root:WaRa_bestSchool%40wrld!@localhost:27017/?authSource=admin
   MONGODB_URI = "mongodb://root:WaRa_bestSchool%40wrld!@localhost:27017/flask_db?authSource=admin"
+  #MONGODB_URI = "mongodb+srv://root:Wara_bestSchool%40wrld!@whattoeat.vbsty6v.mongodb.net/flask_db?authSource=admin"
+  
   client = MongoClient(MONGODB_URI)
 
 
@@ -36,6 +39,7 @@ def create_app():
 
   # Register Blueprints
   app.register_blueprint(user_blueprint, url_prefix="/user")
+  app.register_blueprint(restaurant_blueprint, url_prefix="/restaurant")
 
   # Index Route
   @app.route("/")
