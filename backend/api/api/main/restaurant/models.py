@@ -3,6 +3,7 @@ from flask import request
 from bson.json_util import dumps
 from main import tools
 import json
+import requests
 
 class delivery:
     def __init__(self):
@@ -208,16 +209,40 @@ class Restaurant:
 
     def get(self):
         # extract the parameter sent with the get request
-        restaurantId = request.args.get('restaurantId')
+#        restaurantId = request.args.get('restaurantId')
 
-        restaurant = app.db.restaurants.find_one({ "restaurantId": restaurantId })
+#        restaurant = app.db.restaurants.find_one({ "restaurantId": restaurantId })
+        
+        param = {'slug': request.args.get('primarySlug')}
+        header = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            'Accept':'application/json, text/plain, */*',
+            'Accept-Language':'de',
+            'Accept-Encoding':'gzip, deflate, br',
+            'Referer':'https://www.lieferando.de/',
+            'X-Language-Code':'de',
+            'X-Country-Code':'de',
+            'X-Session-ID':'f5f08e76-a359-434d-899a-817c16ab679c',
+            'X-Requested-With':'XMLHttpRequest',
+            'Origin':'https://www.lieferando.de',
+            'Connection':'keep-alive',
+            'Sec-Fetch-Dest':'empty',
+            'Sec-Fetch-Mode':'cors',
+            'Sec-Fetch-Site':'cross-site',
+            'TE':'trailers',
+            'Cookie':'__cf_bm=1JYIrMHX.NiQ4UqiCzQJqstHubz4g03UtihYChOyQ1c-1704872334-1-AYxyh9kPUmSCEumnxqBF5WYs08yej067FYp/wpVvpiHqmsNYvf0U8euWUv6RciquWzfyTj4g4LU2YS0seuvDf1dUIZcXuWEex1WfHS7CSb06; Path=/;' +
+            'Domain=takeaway.com; Secure; HttpOnly; Expires=Wed, 10 Jan 2024 08:08:54 GMT;'}
+        response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurant', params = param, headers = header)
+        data = response.json()
+        self.insertRestaurant(data)
+        resp = tools.JsonResp(data, 200)
 
-        if restaurant:
-            resp = tools.JsonResp(restaurant, 200)
-        else:
-            resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)
+#        if restaurant:
+#            resp = tools.JsonResp(restaurant, 200)
+#        else:
+#            resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)
 
         return resp  
+        
 
     def getAll(self):
         cursor = app.db.restaurants.find({})
