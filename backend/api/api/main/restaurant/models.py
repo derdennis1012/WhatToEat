@@ -4,6 +4,7 @@ from bson.json_util import dumps
 from main import tools
 import json
 import requests
+import datetime
 
 class delivery:
     def __init__(self):
@@ -163,6 +164,7 @@ class menu:
 class Restaurant:
     def __init__(self):
         self.defaults = {
+            "id": tools.randID(),
             "last_updated": tools.nowDatetimeUTC(),
             "restaurantId": "",
             "primarySlug": "",
@@ -207,13 +209,8 @@ class Restaurant:
             }
         }
 
-    def get(self):
-        # extract the parameter sent with the get request
-#        restaurantId = request.args.get('restaurantId')
-
-#        restaurant = app.db.restaurants.find_one({ "restaurantId": restaurantId })
-        
-        param = {'slug': request.args.get('primarySlug')}
+    def sendRestaurantRequest(self, slug):
+        param = {'slug': slug}
         header = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
             'Accept':'application/json, text/plain, */*',
             'Accept-Language':'de',
@@ -232,14 +229,24 @@ class Restaurant:
             'Cookie':'__cf_bm=1JYIrMHX.NiQ4UqiCzQJqstHubz4g03UtihYChOyQ1c-1704872334-1-AYxyh9kPUmSCEumnxqBF5WYs08yej067FYp/wpVvpiHqmsNYvf0U8euWUv6RciquWzfyTj4g4LU2YS0seuvDf1dUIZcXuWEex1WfHS7CSb06; Path=/;' +
             'Domain=takeaway.com; Secure; HttpOnly; Expires=Wed, 10 Jan 2024 08:08:54 GMT;'}
         response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurant', params = param, headers = header)
-        data = response.json()
-        self.insertRestaurant(data)
-        resp = tools.JsonResp(data, 200)
+        return response.json()
 
-#        if restaurant:
-#            resp = tools.JsonResp(restaurant, 200)
-#        else:
-#            resp = tools.JsonResp({ "message": "Restaurant not found" }, 404)
+    def get(self):
+        slug = request.args.get('primarySlug')
+        restaurant = app.db.restaurants.find_one({ "primarySlug": slug})
+
+        if restaurant:
+            if restaurant['last_updated'] < datetime.datetime.now()-datetime.timedelta(days=3):
+                app.db.restaurants.delete_one({ "primarySlug": slug})
+                data = self.sendRestaurantRequest(slug)
+                self.insertRestaurant(data)
+                resp = tools.JsonResp(data, 200)
+            else: 
+                resp = tools.JsonResp(restaurant, 200)    
+        else:
+            data = self.sendRestaurantRequest(slug)
+            self.insertRestaurant(data)
+            resp = tools.JsonResp(data, 200)
 
         return resp  
         
