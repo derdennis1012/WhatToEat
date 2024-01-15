@@ -28,10 +28,6 @@ def addAll():
 def deleteAll():
     return Restaurant().deleteAll()
 
-@restaurant_blueprint.route("/<int:area>/", methods=["GET"])
+@restaurant_blueprint.route("/area/<int:area>/", methods=["GET"])
 def getAllArea(area):
     return Restaurant().getArea(area)
-
-@restaurant_blueprint.route("/<int:area>/", methods=["DELETE"])
-def deleteAllArea():
-    return Restaurant().deleteAll()

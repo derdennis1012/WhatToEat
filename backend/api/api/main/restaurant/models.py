@@ -163,6 +163,22 @@ class menu:
 
 class Restaurant:
     def __init__(self):
+        self._headers = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            'Accept':'application/json, text/plain, */*',
+            'Accept-Language':'de',
+            'Accept-Encoding':'gzip, deflate, br',
+            'Referer':'https://www.lieferando.de/',
+            'X-Language-Code':'de',
+            'X-Country-Code':'de',
+            'X-Session-ID':'f5f08e76-a359-434d-899a-817c16ab679c',
+            'X-Requested-With':'XMLHttpRequest',
+            'Origin':'https://www.lieferando.de',
+            'Connection':'keep-alive',
+            'Sec-Fetch-Dest':'empty',
+            'Sec-Fetch-Mode':'cors',
+            'Sec-Fetch-Site':'cross-site',
+            'TE':'trailers'}
+        
         self.defaults = {
             "id": tools.randID(),
             "last_updated": tools.nowDatetimeUTC(),
@@ -211,27 +227,12 @@ class Restaurant:
 
     def sendRestaurantRequest(self, slug):
         param = {'slug': slug}
-        header = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
-            'Accept':'application/json, text/plain, */*',
-            'Accept-Language':'de',
-            'Accept-Encoding':'gzip, deflate, br',
-            'Referer':'https://www.lieferando.de/',
-            'X-Language-Code':'de',
-            'X-Country-Code':'de',
-            'X-Session-ID':'f5f08e76-a359-434d-899a-817c16ab679c',
-            'X-Requested-With':'XMLHttpRequest',
-            'Origin':'https://www.lieferando.de',
-            'Connection':'keep-alive',
-            'Sec-Fetch-Dest':'empty',
-            'Sec-Fetch-Mode':'cors',
-            'Sec-Fetch-Site':'cross-site',
-            'TE':'trailers'}
+        header = self._headers
         response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurant', params = param, headers = header)
         return response.json()
 
     def get(self, slug):
         restaurant = app.db.restaurants.find_one({ "primarySlug": slug})
-        # https://cw-api.takeaway.com/api/v33/restaurants?postalCode=79415&isAccurate=false&filterShowTestRestaurants=false
         if restaurant:
             if restaurant['last_updated'] < datetime.datetime.now()-datetime.timedelta(days=1):
                 app.db.restaurants.delete_one({ "primarySlug": slug})
@@ -258,6 +259,15 @@ class Restaurant:
             resp = tools.JsonResp({ "message": "No restaurants found" }, 404)
 
         return resp    
+    
+    def getArea(self, area):
+        param = {'postalCode': area,
+                 'isAccurate': False,
+                 'filterShowTestRestaurants': False}
+        header = self._headers
+        response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurants', params = param, headers = header)
+        resp = tools.JsonResp(response.json(), 200)
+        return resp
             
     def insertRestaurant(self, data):
         expected_data = {
