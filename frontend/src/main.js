@@ -16,6 +16,14 @@ const router = createRouter({
           title: 'Login',
           requiresAuth: false
         }
+      },
+      {
+        path:'/restaurants/search',
+        component: () => import('./pages/SearchRestaurant.vue'),
+        meta: {
+          title: 'Search',
+          requiresAuth: false
+        }
       }
     ]
   })
