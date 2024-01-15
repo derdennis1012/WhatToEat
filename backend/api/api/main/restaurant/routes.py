@@ -4,9 +4,9 @@ from main.restaurant.models import Restaurant
 
 restaurant_blueprint = Blueprint("restaurant", __name__)
 
-@restaurant_blueprint.route("/", methods=["GET"])
-def get():
-    return Restaurant().get()
+@restaurant_blueprint.route("/<string:slug>", methods=["GET"])
+def get(slug):
+    return Restaurant().get(slug)
 
 @restaurant_blueprint.route("/", methods=["POST"])
 def add():
@@ -26,4 +26,12 @@ def addAll():
 
 @restaurant_blueprint.route("/all/", methods=["DELETE"])
 def deleteAll():
+    return Restaurant().deleteAll()
+
+@restaurant_blueprint.route("/<int:area>/", methods=["GET"])
+def getAllArea(area):
+    return Restaurant().getArea(area)
+
+@restaurant_blueprint.route("/<int:area>/", methods=["DELETE"])
+def deleteAllArea():
     return Restaurant().deleteAll()

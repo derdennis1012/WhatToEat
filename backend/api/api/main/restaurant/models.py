@@ -225,18 +225,15 @@ class Restaurant:
             'Sec-Fetch-Dest':'empty',
             'Sec-Fetch-Mode':'cors',
             'Sec-Fetch-Site':'cross-site',
-            'TE':'trailers',
-            'Cookie':'__cf_bm=1JYIrMHX.NiQ4UqiCzQJqstHubz4g03UtihYChOyQ1c-1704872334-1-AYxyh9kPUmSCEumnxqBF5WYs08yej067FYp/wpVvpiHqmsNYvf0U8euWUv6RciquWzfyTj4g4LU2YS0seuvDf1dUIZcXuWEex1WfHS7CSb06; Path=/;' +
-            'Domain=takeaway.com; Secure; HttpOnly; Expires=Wed, 10 Jan 2024 08:08:54 GMT;'}
+            'TE':'trailers'}
         response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurant', params = param, headers = header)
         return response.json()
 
-    def get(self):
-        slug = request.args.get('primarySlug')
+    def get(self, slug):
         restaurant = app.db.restaurants.find_one({ "primarySlug": slug})
-
+        # https://cw-api.takeaway.com/api/v33/restaurants?postalCode=79415&isAccurate=false&filterShowTestRestaurants=false
         if restaurant:
-            if restaurant['last_updated'] < datetime.datetime.now()-datetime.timedelta(days=3):
+            if restaurant['last_updated'] < datetime.datetime.now()-datetime.timedelta(days=1):
                 app.db.restaurants.delete_one({ "primarySlug": slug})
                 data = self.sendRestaurantRequest(slug)
                 self.insertRestaurant(data)
