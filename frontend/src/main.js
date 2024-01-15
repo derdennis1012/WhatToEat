@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
+import WhatToEatAPI from './api/WhatToEat.js'
+
 import './style.css'
 import App from './App.vue'
 const router = createRouter({
@@ -18,6 +20,9 @@ const router = createRouter({
     ]
   })
   
-  app.use(router)
+const app = createApp(App)
 
-createApp(App).mount('#app')
+app.config.globalProperties.$api = new WhatToEatAPI();
+
+app.use(router)
+app.mount('#app')
