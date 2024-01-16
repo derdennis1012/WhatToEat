@@ -48,7 +48,7 @@ class AuthAPI extends APIUtils{
         this.url = "http://localhost:5555/user/"
     }
     login(data){
-        return this.post("login", data);
+        return this.post("login/", data);
     }
 }
 
