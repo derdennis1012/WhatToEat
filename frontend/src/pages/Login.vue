@@ -43,7 +43,7 @@
             </div>
     
             <p class="mt-10 text-center text-sm text-gray-500">
-                Not a registered yet? {{ ' ' }}
+                Not registered yet? {{ ' ' }}
                 <a href="#" class="font-semibold leading-6 text-orange-600 hover:text-orange-500">Ask your admin to set up your account</a>
             </p>
         </div>
