@@ -45,7 +45,7 @@ class AuthAPI extends APIUtils{
     //constructor
     constructor(){
         super();
-        this.url = "http://localhost:5555/user"
+        this.url = "http://localhost:5555/user/"
     }
     login(data){
         return this.post("login", data);
