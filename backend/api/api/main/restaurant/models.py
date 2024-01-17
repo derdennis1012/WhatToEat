@@ -179,7 +179,7 @@ class Restaurant:
             'Sec-Fetch-Site':'cross-site',
             'TE':'trailers'}
         
-        self.defaults = {
+        self._defaults = {
             "id": tools.randID(),
             "last_updated": tools.nowDatetimeUTC(),
             "restaurantId": "",
@@ -229,22 +229,30 @@ class Restaurant:
         param = {'slug': slug}
         header = self._headers
         response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurant', params = param, headers = header)
-        return response.json()
+        try:
+            data = response.json()
+            return data
+        except:
+            return 'Restaurant request to Lieferando failed'
+
+    def checkGetResponse(self, data):
+        if type(data) is str:
+            resp = tools.JsonResp(data, 400)
+        else:
+            self.insertRestaurant(data)
+            resp = tools.JsonResp(data, 200)   
+        return resp     
 
     def get(self, slug):
         restaurant = app.db.restaurants.find_one({ "primarySlug": slug})
         if restaurant:
             if restaurant['last_updated'] < datetime.datetime.now()-datetime.timedelta(days=1):
                 app.db.restaurants.delete_one({ "primarySlug": slug})
-                data = self.sendRestaurantRequest(slug)
-                self.insertRestaurant(data)
-                resp = tools.JsonResp(data, 200)
+                resp = self.checkGetResponse(self.sendRestaurantRequest(slug))    
             else: 
                 resp = tools.JsonResp(restaurant, 200)    
         else:
-            data = self.sendRestaurantRequest(slug)
-            self.insertRestaurant(data)
-            resp = tools.JsonResp(data, 200)
+            resp = self.checkGetResponse(self.sendRestaurantRequest(slug))
 
         return resp  
         
@@ -266,8 +274,12 @@ class Restaurant:
                  'filterShowTestRestaurants': False}
         header = self._headers
         response = requests.get(url = 'https://cw-api.takeaway.com/api/v33/restaurants', params = param, headers = header)
-        resp = tools.JsonResp(response.json(), 200)
-        return resp
+        try:
+            data = response.json()
+            resp = tools.JsonResp(data, 200)
+            return resp
+        except:
+            return tools.JsonResp('Could not retrieve Restaurants in area code', 404)
             
     def insertRestaurant(self, data):
         expected_data = {
@@ -312,17 +324,17 @@ class Restaurant:
             }
         }
 
-        self.defaults.update(expected_data)
+        self._defaults.update(expected_data)
 
         id_as_str = str(expected_data['restaurantId'])
         restaurant = app.db.restaurants.find_one({ "id": id_as_str})
         if restaurant:
-            if app.db.restaurants.update_one({ "id": id_as_str}, { "$set": self.defaults }):
+            if app.db.restaurants.update_one({ "id": id_as_str}, { "$set": self._defaults }):
                 resp = tools.JsonResp({ "message": "Restaurant updated" }, 200)
             else: 
                 resp = tools.JsonResp({ "message": "Restaurant not updated" }, 400)      
         else:
-            if app.db.restaurants.insert_one(self.defaults):
+            if app.db.restaurants.insert_one(self._defaults):
                 resp = tools.JsonResp({ "message": "Restaurant added" }, 201)
             else:
                 resp = tools.JsonResp({ "message": "Restaurant not added" }, 400)    
@@ -343,8 +355,7 @@ class Restaurant:
             resp = tools.JsonResp({ "message": "Restaurants added" }, 201)    
         return resp
 
-    def delete(self):
-        restaurantId = request.args.get('restaurantId')
+    def delete(self, restaurantId):
         restaurant = app.db.restaurants.find_one({ "id": restaurantId})
         if restaurant:
             if app.db.restaurants.delete_one({ "id": restaurantId}):

@@ -12,9 +12,9 @@ def get(slug):
 def add():
     return Restaurant().add()
 
-@restaurant_blueprint.route("/", methods=["DELETE"])
-def delete():
-    return Restaurant().delete()
+@restaurant_blueprint.route("/<string:restaurantId>", methods=["DELETE"])
+def delete(restaurantId):
+    return Restaurant().delete(restaurantId)
 
 @restaurant_blueprint.route("/all/", methods=["GET"])
 def getAll():
