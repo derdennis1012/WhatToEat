@@ -16,10 +16,6 @@ def add():
 def delete(restaurantId):
     return Restaurant().delete(restaurantId)
 
-@restaurant_blueprint.route("/all/", methods=["GET"])
-def getAll():
-    return Restaurant().getAll()
-
 @restaurant_blueprint.route("/all/", methods=["POST"])
 def addAll():
     return Restaurant().addAll()    
