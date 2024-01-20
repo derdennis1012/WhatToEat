@@ -43,6 +43,7 @@ FLASK_DOMAIN="localhost"
 FLASK_PORT_DEFAULT=5000
 FLASK_DIRECTORY="$(pwd)/api/"
 MONGO_HOSTNAME_DEFAULT="localhost"
+MONGO_CONNECTION_TYPE_DEFAULT="mongodb"
 
 # Domain the Flask app will be running on
 read -p "Flask App Domain [$FLASK_DOMAIN]: " FLASK_DOMAIN
@@ -56,6 +57,11 @@ echo
 
 # Domain of the front-end JavaScript application
 read -p "Front-End Domain, port included (e.g. http://localhost, http://localhost:3000): " FRONTEND_DOMAIN
+echo
+
+# MongoDB connection type
+read -p "Mongo Connection Type [$MONGO_CONNECTION_TYPE_DEFAULT]: " MONGO_CONNECTION_TYPE
+MONGO_CONNECTION_TYPE=${MONGO_CONNECTION_TYPE:-$MONGO_CONNECTION_TYPE_DEFAULT}
 echo
 
 # MongoDB hostname

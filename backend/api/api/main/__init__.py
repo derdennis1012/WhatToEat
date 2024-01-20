@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 # Import Routes
 from main.user.routes import user_blueprint
 from main.restaurant.routes import restaurant_blueprint
+from main.votes.routes import votes_blueprint
 
 def create_app():
 
@@ -22,9 +23,8 @@ def create_app():
   # Misc Config
   os.environ["TZ"] = app.config["TIMEZONE"]
 
-  #mongodb uri mongodb://root:WaRa_bestSchool%40wrld!@localhost:27017/?authSource=admin
-  MONGODB_URI = "mongodb://root:WaRa_bestSchool%40wrld!@localhost:27017/flask_db?authSource=admin"
-  #MONGODB_URI = "mongodb+srv://root:Wara_bestSchool%40wrld!@whattoeat.vbsty6v.mongodb.net/flask_db?authSource=admin"
+  MONGODB_URI = f"""{app.config['MONGO_CONNECTION_TYPE']}://{app.config['MONGO_AUTH_USERNAME']}:{app.config['MONGO_AUTH_PASSWORD']}@
+                {app.config['MONGO_HOSTNAME']}/flask_db?authSource={app.config['MONGO_AUTH_DATABASE']}"""
   
   client = MongoClient(MONGODB_URI)
 
@@ -40,6 +40,7 @@ def create_app():
   # Register Blueprints
   app.register_blueprint(user_blueprint, url_prefix="/user")
   app.register_blueprint(restaurant_blueprint, url_prefix="/restaurant")
+  app.register_blueprint(votes_blueprint, url_prefix="/votes")  
 
   # Index Route
   @app.route("/")
