@@ -4,6 +4,7 @@ class WhatToEatAPI{
         this.url = "http://localhost:5555/";
         this.auth = new AuthAPI();
         this.restaurant = new RestaurantAPI();
+        this.votes = new Votes();
     }
 }
 
@@ -52,14 +53,40 @@ class AuthAPI extends APIUtils{
     }
 }
 
+class Votes extends APIUtils{
+    constructor(){
+        super();
+        this.url = "http://localhost:5555/votes/"
+    }
+    getAllVotes(){
+        return this.get(``);
+    }
+    resetVote(){
+        return this.delete(``);
+    }
+    addVote(slug){
+        //get userid form localstorage
+        var userID = localStorage.getItem('userID')
+        return this.post(``,{
+            restaurant_slug: slug,
+            user_id:userID
+        });
+    
+    }
+}
+
 class RestaurantAPI extends APIUtils{
     //constructor
     constructor(){
         super();
-        this.url = "restaurant/"
+        this.url = "http://localhost:5555/restaurant/"
     }
+
     searchByPostalCode(postalCode){
-        return this.get(`postcode/${postalCode}`);
+        return this.get(`area/${postalCode}/`);
+    }
+    getBySlug(slug){
+        return this.get(`${slug}/`);
     }
 }
 

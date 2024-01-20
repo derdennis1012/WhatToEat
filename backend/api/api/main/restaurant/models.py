@@ -77,7 +77,8 @@ class Restaurant:
             data = response.json()
             return data
         except:
-            return 'Restaurant request to Lieferando failed'
+            #return the error message
+            return response.text
 
     def checkGetResponse(self, data):
         if type(data) is str:

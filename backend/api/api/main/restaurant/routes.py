@@ -4,7 +4,7 @@ from main.restaurant.models import Restaurant
 
 restaurant_blueprint = Blueprint("restaurant", __name__)
 
-@restaurant_blueprint.route("/<string:slug>", methods=["GET"])
+@restaurant_blueprint.route("/<string:slug>/", methods=["GET"])
 def get(slug):
     return Restaurant().get(slug)
 

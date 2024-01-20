@@ -6,6 +6,23 @@ import HelloWorld from './components/HelloWorld.vue'
 <router-view />
 </template>
 
+<script>
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  },
+  created() {
+    //check if ztheres a userID in localstorage if no ask user to set one (prompt)
+    var userID = localStorage.getItem('userID')
+    if(!userID){
+      var userID = prompt("Please enter your userID", "000PRO11");
+      localStorage.setItem('userID', userID)
+    }
+  }
+}  
+</script>
+
 <style scoped>
 .logo {
   height: 6em;

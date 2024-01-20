@@ -2,30 +2,39 @@ from flask import Flask, request
 from flask_cors import CORS
 from pymongo import MongoClient
 from main.tools import JsonResp
-from jose import jwt
+#from jose import jwt
 import os
 from bson.objectid import ObjectId
 
 
 # Import Routes
-from main.user.routes import user_blueprint
+#from main.user.routes import user_blueprint
 from main.restaurant.routes import restaurant_blueprint
 from main.votes.routes import votes_blueprint
+
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    return response
 
 def create_app():
 
   # Flask Config
   app = Flask(__name__)
   app.config.from_pyfile("config/config.cfg")
-  cors = CORS(app, resources={r"/*": { "origins": app.config["FRONTEND_DOMAIN"] }})
+  # enable cors for all domains on all routes so allow everything for dev
+  cors = CORS(app, resources={r"/*": {"origins": "*"}})
   app.config['CORS_HEADERS'] = 'Content-Type'
-
   # Misc Config
   os.environ["TZ"] = app.config["TIMEZONE"]
+  app.after_request(after_request)
+  CORS(app)
 
-  MONGODB_URI = f"""{app.config['MONGO_CONNECTION_TYPE']}://{app.config['MONGO_AUTH_USERNAME']}:{app.config['MONGO_AUTH_PASSWORD']}@
-                {app.config['MONGO_HOSTNAME']}/flask_db?authSource={app.config['MONGO_AUTH_DATABASE']}"""
-  
+
+  MONGODB_URI = "mongodb+srv://root:Wara_bestSchool%40wrld!@whattoeat.vbsty6v.mongodb.net/flask_db?authSource=admin"
+  #print the connection string we will use to connect to MongoDB
+  print(MONGODB_URI)
+
   client = MongoClient(MONGODB_URI)
 
 
@@ -38,7 +47,7 @@ def create_app():
 
 
   # Register Blueprints
-  app.register_blueprint(user_blueprint, url_prefix="/user")
+  #app.register_blueprint(user_blueprint, url_prefix="/user")
   app.register_blueprint(restaurant_blueprint, url_prefix="/restaurant")
   app.register_blueprint(votes_blueprint, url_prefix="/votes")  
 
