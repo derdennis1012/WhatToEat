@@ -2,7 +2,6 @@ class WhatToEatAPI{
     //constructor
     constructor(){
         this.url = "http://localhost:5555/";
-        this.auth = new AuthAPI();
         this.restaurant = new RestaurantAPI();
         this.votes = new Votes();
     }
@@ -39,17 +38,6 @@ class APIUtils{
         return fetch(this.url + url, {
             method: 'DELETE',
         }).then(res => res.json());
-    }
-}
-
-class AuthAPI extends APIUtils{
-    //constructor
-    constructor(){
-        super();
-        this.url = "http://localhost:5555/user/"
-    }
-    login(data){
-        return this.post("login/", data);
     }
 }
 

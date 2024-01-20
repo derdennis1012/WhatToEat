@@ -8,7 +8,6 @@ from bson.objectid import ObjectId
 
 
 # Import Routes
-from main.user.routes import user_blueprint
 from main.restaurant.routes import restaurant_blueprint
 from main.votes.routes import votes_blueprint
 
@@ -38,7 +37,6 @@ def create_app():
 
 
   # Register Blueprints
-  app.register_blueprint(user_blueprint, url_prefix="/user")
   app.register_blueprint(restaurant_blueprint, url_prefix="/restaurant")
   app.register_blueprint(votes_blueprint, url_prefix="/votes")  
 

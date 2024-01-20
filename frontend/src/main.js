@@ -15,14 +15,6 @@ const router = createRouter({
   routes: [
 
     {
-      path: '/login',
-      component: () => import('./pages/Login.vue'),
-      meta: {
-        title: 'Login',
-        requiresAuth: false
-      }
-    },
-    {
       path: '/restaurants/search',
       component: () => import('./pages/SearchRestaurant.vue'),
       meta: {
@@ -47,6 +39,10 @@ const router = createRouter({
         title: 'Restaurant Detail',
         requiresAuth: false
       }
+    },
+    {
+      path: '/',
+      redirect: '/restaurants/search'
     }
   ]
 })
