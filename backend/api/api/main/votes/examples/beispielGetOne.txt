@@ -1,6 +1,0 @@
-Abstimmung eines Nutzers um aktuelle Auswahl anzuzeigen
-
-{
-    "restaurant_slug": "cafe-restaurant-zum-brunnen",
-    "user_id": "test"
-}

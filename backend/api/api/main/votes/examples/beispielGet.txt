@@ -1,7 +1,0 @@
-Anzahl der Stimmen zum Anzeigen
-
-{
-    "cafe-restaurant-zum-brunnen": 2,
-    "bad-bellingen-doner-pizza": 2,
-    "da-persio-muellheim": 1
-}

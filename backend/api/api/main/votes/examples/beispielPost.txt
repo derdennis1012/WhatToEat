@@ -1,6 +1,0 @@
-Body des Post sollte so aussehen:
-
-{
-    "restaurant_slug": "da-persio-muellheim",
-    "user_id": "test5"
-}

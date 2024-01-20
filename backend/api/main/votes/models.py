@@ -32,7 +32,6 @@ class Votes:
         cursor = app.db.votes.find({})
         list_cur = list(cursor)
         votes = json.loads(dumps(list_cur))
-        print(votes)
         for vote in votes:
             if vote["restaurant_slug"] in voteCount:
                 voteCount[vote["restaurant_slug"]] += 1

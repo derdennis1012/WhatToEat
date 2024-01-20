@@ -6,6 +6,7 @@ from main.votes.models import Votes
 votes_blueprint = Blueprint("votes", __name__)
 
 @votes_blueprint.route("/", methods=["GET"])
+@cross_origin()
 def get():
 	return Votes().get()
 
@@ -15,9 +16,11 @@ def post():
 	return Votes().post()
 
 @votes_blueprint.route("/", methods=["DELETE"])
+@cross_origin()
 def delete():
     return Votes().delete()
 
 @votes_blueprint.route("/<string:user_id>", methods=["GET"])
+@cross_origin()
 def getOne(user_id):
     return Votes().getOne(user_id)
