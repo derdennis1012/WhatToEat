@@ -73,17 +73,30 @@
       </div>
     </div>
   </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { Dialog, DialogPanel } from '@headlessui/vue'
 
-  const navigation = [
-    { name: 'Product', href: '#' },
-    { name: 'Features', href: '#' },
-    { name: 'Marketplace', href: '#' },
-    { name: 'Company', href: '#' },
-  ]
-  
-  const mobileMenuOpen = ref(false)
-  </script>
+
+<script>
+import { Dialog, DialogPanel } from '@headlessui/vue'
+
+export default {
+    data() {
+        return {
+            navigation: [
+                { name: 'Product', href: '#' },
+                { name: 'Features', href: '#' },
+                { name: 'Marketplace', href: '#' },
+                { name: 'Company', href: '#' },
+            ],
+            mobileMenuOpen: false
+        }
+    },
+    async created(){
+        var data = await this.$api.restaurant.searchByPostalCode(78148)
+        console.log(data)
+    },
+    components: {
+        Dialog,
+        DialogPanel
+    }
+}
+</script>
