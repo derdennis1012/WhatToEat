@@ -94,6 +94,7 @@ sed -i '' -e "s~##FLASK_PORT##~$FLASK_PORT~g" $CONFIG_FILE
 sed -i '' -e "s~##FRONTEND_DOMAIN##~$FRONTEND_DOMAIN~g" $CONFIG_FILE
 sed -i '' -e "s~##FLASK_DIRECTORY##~$FLASK_DIRECTORY~g" $CONFIG_FILE
 sed -i '' -e "s~##MONGO_HOSTNAME##~$MONGO_HOSTNAME~g" $CONFIG_FILE
+sed -i '' -e "s~##MONGO_CONNECTION_TYPE##~$MONGO_CONNECTION_TYPE~g" $CONFIG_FILE
 sed -i '' -e "s~##MONGO_APP_DATABASE##~$MONGO_APP_DATABASE~g" $CONFIG_FILE
 
 echo "${GREEN}Flask configuration saved!${NC}"
